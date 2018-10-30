@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>PZ Present</title>
+    <script src="svg-pan-zoom.js"></script>
+  </head>
+
+  <body>
+    <embed id="mindmap" type="image/svg+xml" style="width: 100%; height: 100%; " src="presentation.svg" />
+
+    <script>
+      // Don't use window.onLoad like this in production, because it can only listen to one function.
+      window.onload = function() {
+        svgPanZoom('#mindmap', {
+          zoomEnabled: true,
+          controlIconsEnabled: false
+        });
+      };
+    </script>
+
+  </body>
+
+</html>
