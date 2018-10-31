@@ -1,5 +1,6 @@
 // The svgPanZoom object instance.
 var svgpz;
+var currentView = 0;
 
 window.addEventListener(
   'load',
@@ -45,17 +46,28 @@ function getViewIndexByKeyName(keyName, views) {
 function keyListener(event) {
   var keyName = event.key;
   var keyNameNum = Number(keyName);
+  var previousView = currentView;
 
-  if (keyNameNum === 0) {
-    svgpz.reset();
-  } else if (keyNameNum >= 1 && keyNameNum <= 9 && views[keyNameNum]) {
-    zoomAndPan(views[keyNameNum]);
-  } else if (keyName === '.') {
+  if (keyName === '.') {
     console.log(getZoomAndPan().join(', '));
+  } else if (keyNameNum >= 0 && keyNameNum <= 9 && views[keyNameNum]) {
+    currentView = keyNameNum;
+  } else if (keyName === 'ArrowRight' && currentView < views.length - 1) {
+    currentView += 1;
+  } else if (keyName === 'ArrowLeft' && currentView > 0) {
+    currentView -= 1;
   } else {
     var index = getViewIndexByKeyName(keyName, views);
     if (index !== -1) {
-      zoomAndPan(views[index]);
+      currentView = index;
+    }
+  }
+
+  if (currentView !== previousView) {
+    if (currentView === 0) {
+      svgpz.reset();
+    } else {
+      zoomAndPan(views[currentView]);
     }
   }
 }
