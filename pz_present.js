@@ -14,15 +14,16 @@ window.addEventListener(
 );
 
 function getZoomAndPan() {
-  // The raw zoom and pan values are absolute, so we make them
-  // relative to the width and height of the SVG.  That way they
-  // still work when the window/screen is a different size.
-  var zoom = svgpz.getZoom();
-  var pan = svgpz.getPan();
+  // The raw pan values are absolute, so we make them relative
+  // to the width and height of the SVG.  That way they still
+  // work when the window/screen is a different size.
+  var current = svgpz.getPan();
   var { width, height } = svgpz.getSizes();
-  var relPanX = pan.x / width;
-  var relPanY = pan.y / height;
-  return [zoom, relPanX, relPanY];
+  var relativeX = current.x / width;
+  var relativeY = current.y / height;
+
+  var zoomLevel = svgpz.getZoom();
+  return [zoomLevel, relativeX, relativeY];
 }
 
 function getPanBy(x, y) {
