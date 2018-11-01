@@ -25,16 +25,33 @@ function getZoomAndPan() {
   return [zoom, relPanX, relPanY];
 }
 
-function zoomAndPan([zoomValue, panX, panY]) {
-  // The 2nd argument to zoom controls whether the zoom value
-  // is absolute (true) or relative (false, default).
-  svgpz.zoom(zoomValue, true);
-
+function getPanBy(x, y) {
+  // De-relativize target pan values.
   var { width, height } = svgpz.getSizes();
-  svgpz.pan({
-    x: panX * width,
-    y: panY * height,
-  });
+  var targetX = x * width;
+  var targetY = y * height;
+
+  // Calculate the relative pan position change to go
+  // from current to target pan position.
+  var current = svgpz.getPan();
+  var panBy = {
+    x: targetX - current.x,
+    y: targetY - current.y,
+  };
+  return panBy;
+}
+
+function getZoomBy(targetZoomLevel) {
+  // Calculate the relative zoom factor to go from current
+  // to target zoom level.
+  var currentZoomLevel = svgpz.getZoom();
+  var zoomFactor = targetZoomLevel / currentZoomLevel;
+  return zoomFactor;
+}
+
+function zoomAndPan([zoomLevel, x, y]) {
+  svgpz.zoomBy(getZoomBy(zoomLevel));
+  svgpz.panBy(getPanBy(x, y));
 }
 
 function getViewIndexByKeyName(keyName, views) {
