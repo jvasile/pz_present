@@ -83,22 +83,20 @@ function zoomAndPan([targetZoomLevel, x, y]) {
 
   animationIntervalId = setInterval(function() {
     if (remainingSteps > 0) {
-      var panBy = getPanBy(panTarget);
-      var stepX = panBy.x / remainingSteps;
-      var stepY = panBy.y / remainingSteps;
+      // Zoom come before pan, because the current zoomLevel affects
+      // required pan values. Thus we fully arrive at target position.
 
       var currentZoomLevel = svgpz.getZoom();
       var stepZoom = (targetZoomLevel - currentZoomLevel) / remainingSteps;
-
       svgpz.zoom(stepZoom + currentZoomLevel);
+
+      var panBy = getPanBy(panTarget);
+      var stepX = panBy.x / remainingSteps;
+      var stepY = panBy.y / remainingSteps;
       svgpz.panBy({ x: stepX, y: stepY });
 
       remainingSteps -= 1;
     } else {
-      // Otherwise we don't quite get fully back to initial view.
-      if (currentView === 0) {
-        svgpz.reset();
-      }
       clearInterval(animationIntervalId);
     }
   }, animationStepTime);
