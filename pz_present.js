@@ -1,6 +1,7 @@
 // The svgPanZoom object instance.
 var svgpz;
 var currentView = 0;
+var animationIntervalId;
 
 var liveKeys = (function() {
   var liveKeys = ['.', 'ArrowRight', 'ArrowLeft'];
@@ -78,7 +79,9 @@ function zoomAndPan([targetZoomLevel, x, y]) {
   var remainingSteps = animationTime / animationStepTime;
   var panTarget = getAbsoluteCoordinates(x, y);
 
-  var intervalId = setInterval(function() {
+  clearInterval(animationIntervalId);
+
+  animationIntervalId = setInterval(function() {
     if (remainingSteps > 0) {
       var panBy = getPanBy(panTarget);
       var stepX = panBy.x / remainingSteps;
@@ -96,7 +99,7 @@ function zoomAndPan([targetZoomLevel, x, y]) {
       if (currentView === 0) {
         svgpz.reset();
       }
-      clearInterval(intervalId);
+      clearInterval(animationIntervalId);
     }
   }, animationStepTime);
 }
