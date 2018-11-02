@@ -2,6 +2,17 @@
 var svgpz;
 var currentView = 0;
 
+var liveKeys = (function() {
+  var liveKeys = ['.', 'ArrowRight', 'ArrowLeft'];
+  views.forEach(function(view, index) {
+    liveKeys.push(index.toString());
+    if (view[3]) {
+      liveKeys.push(view[3]);
+    }
+  });
+  return liveKeys;
+})();
+
 window.addEventListener(
   'load',
   function() {
@@ -96,28 +107,33 @@ function getViewIndexByKeyName(keyName, views) {
   });
 }
 
-function keyListener(event) {
-  var keyName = event.key;
+function getNextView(currentView, views, keyName) {
   var keyNameNum = Number(keyName);
-  var previousView = currentView;
+  var nextView;
 
-  if (keyName === '.') {
-    console.log(getZoomAndPan().join(', '));
-  } else if (keyNameNum >= 0 && keyNameNum <= 9 && views[keyNameNum]) {
-    currentView = keyNameNum;
-  } else if (keyName === 'ArrowRight' && currentView < views.length - 1) {
-    currentView += 1;
-  } else if (keyName === 'ArrowLeft' && currentView > 0) {
-    currentView -= 1;
+  if (keyNameNum >= 0 && keyNameNum <= 9) {
+    nextView = keyNameNum;
+  } else if (keyName === 'ArrowRight') {
+    nextView = currentView < views.length - 1 ? currentView + 1 : currentView;
+  } else if (keyName === 'ArrowLeft') {
+    nextView = currentView > 0 ? currentView - 1 : currentView;
   } else {
     var index = getViewIndexByKeyName(keyName, views);
-    if (index !== -1) {
-      currentView = index;
-    }
+    nextView = index === -1 ? currentView : index;
   }
+  return nextView;
+}
 
-  if (currentView !== previousView) {
-    zoomAndPan(views[currentView]);
+function keyListener(event) {
+  var keyName = event.key;
+
+  if (liveKeys.includes(keyName)) {
+    if (keyName === '.') {
+      console.log(getZoomAndPan().join(', '));
+    } else {
+      currentView = getNextView(currentView, views, keyName);
+      zoomAndPan(views[currentView]);
+    }
   }
 }
 
