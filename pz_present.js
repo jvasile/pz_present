@@ -9,6 +9,9 @@ window.addEventListener(
       zoomEnabled: true,
       controlIconsEnabled: false,
     });
+
+    // Set view 0 to initial page rendering.
+    views[0] = getZoomAndPan();
   },
   false
 );
@@ -78,6 +81,10 @@ function zoomAndPan([targetZoomLevel, x, y]) {
 
       remainingSteps -= 1;
     } else {
+      // Otherwise we don't quite get fully back to initial view.
+      if (currentView === 0) {
+        svgpz.reset();
+      }
       clearInterval(intervalId);
     }
   }, animationStepTime);
@@ -110,11 +117,7 @@ function keyListener(event) {
   }
 
   if (currentView !== previousView) {
-    if (currentView === 0) {
-      svgpz.reset();
-    } else {
-      zoomAndPan(views[currentView]);
-    }
+    zoomAndPan(views[currentView]);
   }
 }
 
