@@ -130,7 +130,7 @@ function keyListener(event) {
 
   if (liveKeys.includes(keyName)) {
     if (keyName === '.') {
-      console.log(getZoomAndPan().join(', '));
+      console.log('[' + getZoomAndPan().join(', ') + '],');
     } else {
       currentView = getNextView(currentView, views, keyName);
       zoomAndPan(views[currentView]);

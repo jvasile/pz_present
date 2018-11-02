@@ -25,18 +25,20 @@ then point your browser at http://localhost:3050 .  For the
 
 To set up preset "views", open the console inside your browser's
 developer tools.  Then manually pan and zoom to a "view" you want
-to save as a preset.  Press the period ('.') key and three numbers
-will be logged to the console. (You may need to click on the page
-first so it will register the key press.)
-
-Open the "views.js" file in an editor and cut and paste the three
-numbers from the console into a new array on the next line in the
-"views" array, like so:
+to save as a preset.  Press the period ('.') key and an array of
+three numbers will be logged to the console, like so:
 
 `[1.5287898741806416, -0.3384300293883705, -0.1704605958743659],`
 
-The "views.js" file comes with some example presets, that you'll
-want to delete.
+(You may need to click on the page first so it will register the
+key press.)
+
+Open the "views.js" file in an editor and cut and paste the array
+of three numbers from the console into the next line in the
+"views" array.
+
+The "views.js" file comes with some example preset views, that
+you'll want to delete.
 
 Add additional views in the same way, in the order you want them
 to appear. Optionally, you can assign a letter short-cut key for
