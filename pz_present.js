@@ -57,9 +57,30 @@ function getZoomBy(targetZoomLevel) {
   return zoomFactor;
 }
 
-function zoomAndPan([zoomLevel, x, y]) {
-  svgpz.zoomBy(getZoomBy(zoomLevel));
-  svgpz.panBy(getPanBy(x, y));
+function zoomAndPan([targetZoomLevel, x, y]) {
+  // times are in milliseconds
+  var animationTime = 450;
+  var animationStepTime = 15;
+  var remainingSteps = animationTime / animationStepTime;
+  var panTarget = getAbsoluteCoordinates(x, y);
+
+  var intervalId = setInterval(function() {
+    if (remainingSteps > 0) {
+      var panBy = getPanBy(panTarget);
+      var stepX = panBy.x / remainingSteps;
+      var stepY = panBy.y / remainingSteps;
+
+      var currentZoomLevel = svgpz.getZoom();
+      var stepZoom = (targetZoomLevel - currentZoomLevel) / remainingSteps;
+
+      svgpz.zoom(stepZoom + currentZoomLevel);
+      svgpz.panBy({ x: stepX, y: stepY });
+
+      remainingSteps -= 1;
+    } else {
+      clearInterval(intervalId);
+    }
+  }, animationStepTime);
 }
 
 function getViewIndexByKeyName(keyName, views) {
