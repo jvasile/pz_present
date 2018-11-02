@@ -26,18 +26,25 @@ function getZoomAndPan() {
   return [zoomLevel, relativeX, relativeY];
 }
 
-function getPanBy(x, y) {
-  // De-relativize target pan values.
+function getAbsoluteCoordinates(x, y) {
+  // Takes relative x and y values representing a position
+  // in an abstract 1.0 x 1.0 SVG, and returns the absolute
+  // values for the SVG at its current size.
   var { width, height } = svgpz.getSizes();
-  var targetX = x * width;
-  var targetY = y * height;
+  return {
+    x: x * width,
+    y: y * height,
+  };
+}
 
-  // Calculate the relative pan position change to go
-  // from current to target pan position.
+function getPanBy(target) {
+  // Takes target x/y coordinates and returns the amount
+  // of relative x/y panning to go from current to target
+  // position.
   var current = svgpz.getPan();
   var panBy = {
-    x: targetX - current.x,
-    y: targetY - current.y,
+    x: target.x - current.x,
+    y: target.y - current.y,
   };
   return panBy;
 }
