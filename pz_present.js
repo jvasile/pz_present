@@ -1,18 +1,33 @@
 // The svgPanZoom object instance.
 var svgpz;
+
+// views is an array of arrays representing preset views.
+// each array is: [zoomLevel, x, y, keyName]
+// keyName is an optional shortcut key.
+var views;
+
+// Index of the last activated view in views.
 var currentView = 0;
+
+// Array of names of the keyboard keys that do something.
+var liveKeys;
+
 var animationIntervalId;
 
-var liveKeys = (function() {
-  var liveKeys = ['.', 'ArrowRight', 'ArrowLeft'];
-  views.forEach(function(view, index) {
-    liveKeys.push(index.toString());
-    if (view[3]) {
-      liveKeys.push(view[3]);
+function loadJson(callback) {
+  var request = new XMLHttpRequest();
+  request.overrideMimeType('application/json');
+  request.open('GET', 'views.json', true);
+
+  request.onreadystatechange = function() {
+    if (request.readyState === 4 && request.status === 200) {
+      // Required use of a callback as .open will NOT return a
+      // value but simply returns undefined in asynchronous mode.
+      callback(request.responseText);
     }
-  });
-  return liveKeys;
-})();
+  };
+  request.send();
+}
 
 window.addEventListener(
   'load',
@@ -22,8 +37,20 @@ window.addEventListener(
       controlIconsEnabled: false,
     });
 
-    // Set view 0 to initial page rendering.
-    views[0] = getZoomAndPan();
+    loadJson(function(response) {
+      views = JSON.parse(response);
+
+      // Set view 0 to initial page rendering.
+      views[0] = getZoomAndPan();
+
+      liveKeys = ['.', 'ArrowRight', 'ArrowLeft'];
+      views.forEach(function(view, index) {
+        liveKeys.push(index.toString());
+        if (view[3]) {
+          liveKeys.push(view[3]);
+        }
+      });
+    });
   },
   false
 );
