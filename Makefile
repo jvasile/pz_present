@@ -21,7 +21,7 @@ clean:
 	@rm -f presentation.svg leaflet.js leaflet.css panzoom.js
 
 deps:
-	npm install connect server
+	npm install connect server fs body
 
 debian:
 	dpkg -l | grep -q "^ii  dia " || apt install -y dia

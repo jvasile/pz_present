@@ -152,12 +152,21 @@ function getNextView(currentView, views, keyName) {
   return nextView;
 }
 
+function saveViews(views) {
+  request = new XMLHttpRequest();
+  request.open('POST', 'save-views');
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.send(JSON.stringify(views));
+}
+
 function keyListener(event) {
   var keyName = event.key;
 
   if (liveKeys.includes(keyName)) {
     if (keyName === '.') {
-      console.log(getZoomAndPan());
+      views.push(getZoomAndPan());
+      liveKeys.push(String(views.length - 1));
+      saveViews(views);
     } else {
       currentView = getNextView(currentView, views, keyName);
       zoomAndPan(views[currentView]);
