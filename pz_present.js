@@ -46,8 +46,8 @@ window.addEventListener(
       liveKeys = ['.', 'ArrowRight', 'ArrowLeft'];
       views.forEach(function(view, index) {
         liveKeys.push(index.toString());
-        if (view[3]) {
-          liveKeys.push(view[3]);
+        if (view.shortcutKey) {
+          liveKeys.push(view.shortcutKey);
         }
       });
     });
@@ -65,7 +65,7 @@ function getZoomAndPan() {
   var relativeY = current.y / height;
 
   var zoomLevel = svgpz.getZoom();
-  return [zoomLevel, relativeX, relativeY];
+  return { zoomLevel: zoomLevel, x: relativeX, y: relativeY };
 }
 
 function getAbsoluteCoordinates(x, y) {
@@ -99,7 +99,7 @@ function getZoomBy(targetZoomLevel) {
   return zoomFactor;
 }
 
-function zoomAndPan([targetZoomLevel, x, y]) {
+function zoomAndPan({ zoomLevel: targetZoomLevel, x, y }) {
   // times are in milliseconds
   var animationTime = 450;
   var animationStepTime = 15;
@@ -131,7 +131,7 @@ function zoomAndPan([targetZoomLevel, x, y]) {
 
 function getViewIndexByKeyName(keyName, views) {
   return views.findIndex(function(view) {
-    return view[3] === keyName;
+    return view.shortcutKey === keyName;
   });
 }
 
@@ -157,7 +157,7 @@ function keyListener(event) {
 
   if (liveKeys.includes(keyName)) {
     if (keyName === '.') {
-      console.log('[' + getZoomAndPan().join(', ') + '],');
+      console.log(getZoomAndPan());
     } else {
       currentView = getNextView(currentView, views, keyName);
       zoomAndPan(views[currentView]);
