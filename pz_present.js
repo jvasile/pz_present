@@ -37,13 +37,20 @@ window.addEventListener(
       controlIconsEnabled: false,
     });
 
+    document
+      .getElementById('edit-views-done')
+      .addEventListener('click', function() {
+        document.getElementById('edit-views').classList.add('hidden');
+        document.getElementById('mindmap').classList.remove('hidden');
+      });
+
     loadJson(function(response) {
       views = JSON.parse(response);
 
       // Set view 0 to initial page rendering.
       views[0] = getZoomAndPan();
 
-      liveKeys = ['.', 'ArrowRight', 'ArrowLeft'];
+      liveKeys = ['.', ',', 'ArrowRight', 'ArrowLeft'];
       views.forEach(function(view, index) {
         liveKeys.push(index.toString());
         if (view.shortcutKey) {
@@ -159,6 +166,47 @@ function saveViews(views) {
   request.send(JSON.stringify(views));
 }
 
+function removeChildNodes(node) {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+}
+
+function renderViewsTableRows() {
+  var tbody = document.getElementById('edit-views-tbody');
+  removeChildNodes(tbody);
+  views.forEach((view, index) => {
+    var row = document.createElement('tr');
+    var numberTd = document.createElement('td');
+    var nameTd = document.createElement('td');
+    var shortcutTd = document.createElement('td');
+    var actionsTd = document.createElement('td');
+
+    numberTd.textContent = String(index);
+    nameTd.textContent = view.name || '';
+    shortcutTd.textContent = view.shortcutKey || '';
+
+    row.appendChild(numberTd);
+    row.appendChild(nameTd);
+    row.appendChild(shortcutTd);
+    row.appendChild(actionsTd);
+    tbody.appendChild(row);
+  });
+}
+
+function toggleEditViews() {
+  var mindmap = document.getElementById('mindmap');
+  var editViews = document.getElementById('edit-views');
+  if (mindmap.classList.contains('hidden')) {
+    editViews.classList.add('hidden');
+    mindmap.classList.remove('hidden');
+  } else {
+    renderViewsTableRows();
+    mindmap.classList.add('hidden');
+    editViews.classList.remove('hidden');
+  }
+}
+
 function keyListener(event) {
   var keyName = event.key;
 
@@ -167,6 +215,8 @@ function keyListener(event) {
       views.push(getZoomAndPan());
       liveKeys.push(String(views.length - 1));
       saveViews(views);
+    } else if (keyName === ',') {
+      toggleEditViews();
     } else {
       currentView = getNextView(currentView, views, keyName);
       zoomAndPan(views[currentView]);
