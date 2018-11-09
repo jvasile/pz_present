@@ -1,14 +1,31 @@
 <!DOCTYPE html>
 <html>
   <head>
-  	<title>PZ Present</title>
+    <title>PZ Present</title>
+    <link href="styles.css" rel="stylesheet" type="text/css">
   </head>
 
   <body>
     <embed id="mindmap" type="image/svg+xml" style="width: 100%; height: 100%; " src="presentation.svg" />
 
+    <div id="edit-views" class="hidden">
+      <h1>Edit Preset Views</h1>
+      <button id="edit-views-done">Back to Presentation</button>
+      <table class="edit-views-table">
+        <thead>
+          <tr class="edit-views-table-row">
+            <th class="edit-views-th">#</th>
+            <th class="edit-views-th">Name</th>
+            <th class="edit-views-th">Shortcut Key</th>
+            <th class="edit-views-th">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="edit-views-tbody">
+        </tbody>
+      </table>
+    </div>
+
     <script src="svg-pan-zoom.js"></script>
-    <script src="views.js"></script>
     <script src="pz_present.js"></script>
   </body>
 

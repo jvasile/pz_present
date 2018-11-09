@@ -23,34 +23,23 @@ To use the presentation html, run 'make serve' to start the server,
 then point your browser at http://localhost:3050 .  For the
 "no-server" version, just open the html file in your browser.
 
-To set up preset "views", open the console inside your browser's
-developer tools.  Then manually pan and zoom to a "view" you want
-to save as a preset.  Press the period ('.') key and an array of
-three numbers will be logged to the console, like so:
+To set up preset "views", pan and zoom to a "view" you want to
+save as a preset.  Press the period ('.') key. (You may need to
+click on the page first so it will register the key press.)  A
+dialog will ask for an optional name for the view (to easily
+identify it when editing views) and an optional shortcut key for
+moving to that view.
 
-`[1.5287898741806416, -0.3384300293883705, -0.1704605958743659],`
+Add additional views in the same way, in the order you want.
 
-(You may need to click on the page first so it will register the
-key press.)
+Use the left and right arrow keyboard keys to navigate through
+the views in order, or hit a number key to jump to a view by
+number.  Zero is the initial page view, and one is the first
+saved preset view. If you assigned letter keys to views you can
+also use those.
 
-Open the "views.js" file in an editor and cut and paste the array
-of three numbers from the console into the next line in the
-"views" array.
+To edit views, press the comma (',') key to show the "Edit Preset
+Views" interface.  You can change the order of views, delete them,
+name or rename them, and add or change their shortcut keys. Hit
+the comma key again to close the "Edit Preset Views" interface.
 
-The "views.js" file comes with some example preset views, that
-you'll want to delete.
-
-Add additional views in the same way, in the order you want them
-to appear. Optionally, you can assign a letter short-cut key for
-a given view, by adding a letter string at the end of the array,
-like so:
-
-`[1.5287898741806416, -0.3384300293883705, -0.1704605958743659, 'm'],`
-
-(This process is temporary, until we have a good UI for this.)
-
-Save the "views.js" file and refresh the page.  Use the left and
-right arrow keyboard keys to navigate through the views in order,
-or hit a number key to jump to a view by number.  Zero is the
-initial page view, and one is the first saved preset view. If you
-assigned letter keys to views you can also use those.

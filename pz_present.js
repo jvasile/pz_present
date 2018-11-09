@@ -1,18 +1,33 @@
 // The svgPanZoom object instance.
 var svgpz;
+
+// views is an array of arrays representing preset views.
+// each array is: [zoomLevel, x, y, keyName]
+// keyName is an optional shortcut key.
+var views;
+
+// Index of the last activated view in views.
 var currentView = 0;
+
+// Array of names of the keyboard keys that do something.
+var liveKeys;
+
 var animationIntervalId;
 
-var liveKeys = (function() {
-  var liveKeys = ['.', 'ArrowRight', 'ArrowLeft'];
-  views.forEach(function(view, index) {
-    liveKeys.push(index.toString());
-    if (view[3]) {
-      liveKeys.push(view[3]);
+function loadJson(callback) {
+  var request = new XMLHttpRequest();
+  request.overrideMimeType('application/json');
+  request.open('GET', 'views.json', true);
+
+  request.onreadystatechange = function() {
+    if (request.readyState === 4 && request.status === 200) {
+      // Required use of a callback as .open will NOT return a
+      // value but simply returns undefined in asynchronous mode.
+      callback(request.responseText);
     }
-  });
-  return liveKeys;
-})();
+  };
+  request.send();
+}
 
 window.addEventListener(
   'load',
@@ -22,8 +37,31 @@ window.addEventListener(
       controlIconsEnabled: false,
     });
 
-    // Set view 0 to initial page rendering.
-    views[0] = getZoomAndPan();
+    document
+      .getElementById('edit-views-done')
+      .addEventListener('click', function() {
+        document.getElementById('edit-views').classList.add('hidden');
+        document.getElementById('mindmap').classList.remove('hidden');
+      });
+
+    loadJson(function(response) {
+      views = JSON.parse(response);
+
+      // Set view 0 to initial page rendering.
+      var initialView = getZoomAndPan();
+      views[0] = Object.assign(views[0], initialView);
+      if (!views[0].name) {
+        views[0].name = 'initial page load';
+      }
+
+      liveKeys = new Set(['.', ',', 'ArrowRight', 'ArrowLeft']);
+      views.forEach(function(view, index) {
+        liveKeys.add(String(index));
+        if (view.shortcutKey) {
+          liveKeys.add(view.shortcutKey);
+        }
+      });
+    });
   },
   false
 );
@@ -38,7 +76,7 @@ function getZoomAndPan() {
   var relativeY = current.y / height;
 
   var zoomLevel = svgpz.getZoom();
-  return [zoomLevel, relativeX, relativeY];
+  return { zoomLevel: zoomLevel, x: relativeX, y: relativeY };
 }
 
 function getAbsoluteCoordinates(x, y) {
@@ -72,7 +110,7 @@ function getZoomBy(targetZoomLevel) {
   return zoomFactor;
 }
 
-function zoomAndPan([targetZoomLevel, x, y]) {
+function zoomAndPan({ zoomLevel: targetZoomLevel, x, y }) {
   // times are in milliseconds
   var animationTime = 450;
   var animationStepTime = 15;
@@ -104,7 +142,7 @@ function zoomAndPan([targetZoomLevel, x, y]) {
 
 function getViewIndexByKeyName(keyName, views) {
   return views.findIndex(function(view) {
-    return view[3] === keyName;
+    return view.shortcutKey === keyName;
   });
 }
 
@@ -125,12 +163,198 @@ function getNextView(currentView, views, keyName) {
   return nextView;
 }
 
+function saveViews(views) {
+  request = new XMLHttpRequest();
+  request.open('POST', 'save-views');
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.send(JSON.stringify(views));
+}
+
+function removeChildNodes(node) {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+}
+
+function deleteView(index) {
+  liveKeys.delete(String(views.length - 1));
+  liveKeys.delete(views[index].shortcutKey);
+  views.splice(index, 1);
+  saveViews(views);
+  renderViewsTableRows();
+}
+
+function moveView(index, step) {
+  var movingView = views[index];
+  var bumpedView = views[index + step];
+  views[index + step] = movingView;
+  views[index] = bumpedView;
+  saveViews(views);
+  renderViewsTableRows();
+}
+
+function makeActionsTd(views, index) {
+  var actionsTd = document.createElement('td');
+
+  var moveUpAction = document.createElement('span');
+  moveUpAction.textContent = 'Move Up';
+  if (index > 1) {
+    moveUpAction.className = 'view-action';
+    moveUpAction.addEventListener('click', () => {
+      moveView(index, -1);
+    });
+  } else {
+    moveUpAction.className = 'view-action disabled';
+  }
+  actionsTd.appendChild(moveUpAction);
+
+  var moveDownAction = document.createElement('span');
+  moveDownAction.textContent = 'Move Down';
+  if (index < views.length - 1 && index !== 0) {
+    moveDownAction.className = 'view-action';
+    moveDownAction.addEventListener('click', () => {
+      moveView(index, 1);
+    });
+  } else {
+    moveDownAction.className = 'view-action disabled';
+  }
+  actionsTd.appendChild(moveDownAction);
+
+  var deleteAction = document.createElement('span');
+  deleteAction.textContent = 'Delete';
+  if (index > 0) {
+    deleteAction.className = 'view-action';
+    deleteAction.addEventListener('click', () => {
+      deleteView(index);
+    });
+  } else {
+    deleteAction.className = 'view-action disabled';
+  }
+  actionsTd.appendChild(deleteAction);
+
+  return actionsTd;
+}
+
+function setViewName(index) {
+  var newName = prompt(
+    'Enter a new name for this preset view.',
+    views[index].name || ''
+  );
+  if (newName !== null) {
+    if (newName === '') {
+      delete views[index].name;
+    } else {
+      views[index].name = newName;
+    }
+    saveViews(views);
+    renderViewsTableRows();
+  }
+}
+
+function setViewShortcut(index) {
+  var newShortcut = prompt(
+    'Enter a new shortcut key.',
+    views[index].shortcutKey || ''
+  );
+  if (newShortcut !== null) {
+    liveKeys.delete(views[index].shortcutKey);
+    if (newShortcut === '') {
+      delete views[index].shortcutKey;
+    } else {
+      views[index].shortcutKey = newShortcut;
+      liveKeys.add(newShortcut);
+    }
+    saveViews(views);
+    renderViewsTableRows();
+  }
+}
+
+function renderViewsTableRows() {
+  var tbody = document.getElementById('edit-views-tbody');
+  removeChildNodes(tbody);
+
+  views.forEach((view, index) => {
+    var row = document.createElement('tr');
+    var numberTd = document.createElement('td');
+    numberTd.classList.add('edit-views-td');
+    var nameTd = numberTd.cloneNode();
+    var shortcutTd = numberTd.cloneNode();
+    var actionsTd = makeActionsTd(views, index);
+    actionsTd.classList.add('edit-views-td');
+
+    numberTd.textContent = String(index);
+
+    var nameText = document.createElement('span');
+    nameText.className = 'view-action';
+    nameText.addEventListener('click', () => {
+      setViewName(index);
+    });
+    nameText.textContent = view.name || '[+]';
+    nameTd.appendChild(nameText);
+
+    var shortcutText = document.createElement('span');
+    shortcutText.className = 'view-action';
+    shortcutText.addEventListener('click', () => {
+      setViewShortcut(index);
+    });
+    shortcutText.textContent = view.shortcutKey || '[+]';
+    shortcutTd.appendChild(shortcutText);
+
+    row.appendChild(numberTd);
+    row.appendChild(nameTd);
+    row.appendChild(shortcutTd);
+    row.appendChild(actionsTd);
+    row.classList.add('edit-views-table-row');
+    tbody.appendChild(row);
+  });
+}
+
+function addNewView(views) {
+  var view = getZoomAndPan();
+  var name = prompt(
+    'Optionally enter a name for this preset view, for editing purposes, or leave blank.',
+    ''
+  );
+  if (name === null) return;
+  var shortcut = prompt(
+    "Optionally enter a shortcut key (like 'm') for this preset view, or leave blank.",
+    ''
+  );
+  if (shortcut === null) return;
+
+  if (name) {
+    view.name = name;
+  }
+  if (shortcut) {
+    view.shortcutKey = shortcut;
+    liveKeys.add(shortcut);
+  }
+  views.push(view);
+  liveKeys.add(String(views.length - 1));
+  saveViews(views);
+}
+
+function toggleEditViews() {
+  var mindmap = document.getElementById('mindmap');
+  var editViews = document.getElementById('edit-views');
+  if (mindmap.classList.contains('hidden')) {
+    editViews.classList.add('hidden');
+    mindmap.classList.remove('hidden');
+  } else {
+    renderViewsTableRows();
+    mindmap.classList.add('hidden');
+    editViews.classList.remove('hidden');
+  }
+}
+
 function keyListener(event) {
   var keyName = event.key;
 
-  if (liveKeys.includes(keyName)) {
+  if (liveKeys.has(keyName)) {
     if (keyName === '.') {
-      console.log('[' + getZoomAndPan().join(', ') + '],');
+      addNewView(views);
+    } else if (keyName === ',') {
+      toggleEditViews();
     } else {
       currentView = getNextView(currentView, views, keyName);
       zoomAndPan(views[currentView]);
