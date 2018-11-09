@@ -50,11 +50,11 @@ window.addEventListener(
       // Set view 0 to initial page rendering.
       views[0] = getZoomAndPan();
 
-      liveKeys = ['.', ',', 'ArrowRight', 'ArrowLeft'];
+      liveKeys = new Set(['.', ',', 'ArrowRight', 'ArrowLeft']);
       views.forEach(function(view, index) {
-        liveKeys.push(index.toString());
+        liveKeys.add(String(index));
         if (view.shortcutKey) {
-          liveKeys.push(view.shortcutKey);
+          liveKeys.add(view.shortcutKey);
         }
       });
     });
@@ -212,10 +212,10 @@ function addNewView(views) {
   }
   if (shortcut) {
     view.shortcutKey = shortcut;
-    liveKeys.push(shortcut);
+    liveKeys.add(shortcut);
   }
   views.push(view);
-  liveKeys.push(String(views.length - 1));
+  liveKeys.add(String(views.length - 1));
   saveViews(views);
 }
 
@@ -235,7 +235,7 @@ function toggleEditViews() {
 function keyListener(event) {
   var keyName = event.key;
 
-  if (liveKeys.includes(keyName)) {
+  if (liveKeys.has(keyName)) {
     if (keyName === '.') {
       addNewView(views);
     } else if (keyName === ',') {
