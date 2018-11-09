@@ -194,6 +194,31 @@ function renderViewsTableRows() {
   });
 }
 
+function addNewView(views) {
+  var view = getZoomAndPan();
+  var name = prompt(
+    'Adding a new preset view, optionally enter a name for this view, or leave it blank (unnamed).',
+    ''
+  );
+  if (name === null) return;
+  var shortcut = prompt(
+    'Adding a new preset view, optionally enter a keyboard shortcut.',
+    ''
+  );
+  if (shortcut === null) return;
+
+  if (name) {
+    view.name = name;
+  }
+  if (shortcut) {
+    view.shortcutKey = shortcut;
+    liveKeys.push(shortcut);
+  }
+  views.push(view);
+  liveKeys.push(String(views.length - 1));
+  saveViews(views);
+}
+
 function toggleEditViews() {
   var mindmap = document.getElementById('mindmap');
   var editViews = document.getElementById('edit-views');
@@ -212,9 +237,7 @@ function keyListener(event) {
 
   if (liveKeys.includes(keyName)) {
     if (keyName === '.') {
-      views.push(getZoomAndPan());
-      liveKeys.push(String(views.length - 1));
-      saveViews(views);
+      addNewView(views);
     } else if (keyName === ',') {
       toggleEditViews();
     } else {
