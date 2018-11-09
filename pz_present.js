@@ -48,7 +48,11 @@ window.addEventListener(
       views = JSON.parse(response);
 
       // Set view 0 to initial page rendering.
-      views[0] = getZoomAndPan();
+      var initialView = getZoomAndPan();
+      views[0] = Object.assign(views[0], initialView);
+      if (!views[0].name) {
+        views[0].name = 'initial page load';
+      }
 
       liveKeys = new Set(['.', ',', 'ArrowRight', 'ArrowLeft']);
       views.forEach(function(view, index) {
@@ -193,16 +197,20 @@ function makeActionsTd(views, index) {
   var actionsTd = document.createElement('td');
 
   var deleteAction = document.createElement('span');
-  deleteAction.className = 'view-action';
   deleteAction.textContent = 'Delete';
-  deleteAction.addEventListener('click', () => {
-    deleteView(index);
-  });
+  if (index > 0) {
+    deleteAction.className = 'view-action';
+    deleteAction.addEventListener('click', () => {
+      deleteView(index);
+    });
+  } else {
+    deleteAction.className = 'view-action disabled';
+  }
   actionsTd.appendChild(deleteAction);
 
   var moveUpAction = document.createElement('span');
   moveUpAction.textContent = 'Move Up';
-  if (index > 0) {
+  if (index > 1) {
     moveUpAction.className = 'view-action';
     moveUpAction.addEventListener('click', () => {
       moveView(index, -1);
@@ -214,7 +222,7 @@ function makeActionsTd(views, index) {
 
   var moveDownAction = document.createElement('span');
   moveDownAction.textContent = 'Move Down';
-  if (index < views.length - 1) {
+  if (index < views.length - 1 && index !== 0) {
     moveDownAction.className = 'view-action';
     moveDownAction.addEventListener('click', () => {
       moveView(index, 1);
