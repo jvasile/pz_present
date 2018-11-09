@@ -172,19 +172,120 @@ function removeChildNodes(node) {
   }
 }
 
+function deleteView(index) {
+  liveKeys.delete(String(views.length - 1));
+  liveKeys.delete(views[index].shortcutKey);
+  views.splice(index, 1);
+  saveViews(views);
+  renderViewsTableRows();
+}
+
+function moveView(index, step) {
+  var movingView = views[index];
+  var bumpedView = views[index + step];
+  views[index + step] = movingView;
+  views[index] = bumpedView;
+  saveViews(views);
+  renderViewsTableRows();
+}
+
+function makeActionsTd(views, index) {
+  var actionsTd = document.createElement('td');
+
+  var deleteAction = document.createElement('span');
+  deleteAction.className = 'view-action';
+  deleteAction.textContent = 'Delete';
+  deleteAction.addEventListener('click', () => {
+    deleteView(index);
+  });
+  actionsTd.appendChild(deleteAction);
+
+  var moveUpAction = document.createElement('span');
+  moveUpAction.textContent = 'Move Up';
+  if (index > 0) {
+    moveUpAction.className = 'view-action';
+    moveUpAction.addEventListener('click', () => {
+      moveView(index, -1);
+    });
+  } else {
+    moveUpAction.className = 'view-action disabled';
+  }
+  actionsTd.appendChild(moveUpAction);
+
+  var moveDownAction = document.createElement('span');
+  moveDownAction.textContent = 'Move Down';
+  if (index < views.length - 1) {
+    moveDownAction.className = 'view-action';
+    moveDownAction.addEventListener('click', () => {
+      moveView(index, 1);
+    });
+  } else {
+    moveDownAction.className = 'view-action disabled';
+  }
+  actionsTd.appendChild(moveDownAction);
+
+  return actionsTd;
+}
+
+function setViewName(index) {
+  var newName = prompt('Enter a new view name.', views[index].name || '');
+  if (newName !== null) {
+    if (newName === '') {
+      delete views[index].name;
+    } else {
+      views[index].name = newName;
+    }
+    saveViews(views);
+    renderViewsTableRows();
+  }
+}
+
+function setViewShortcut(index) {
+  var newShortcut = prompt(
+    'Enter a new view shortcut key.',
+    views[index].shortcutKey || ''
+  );
+  if (newShortcut !== null) {
+    liveKeys.delete(views[index].shortcutKey);
+    if (newShortcut === '') {
+      delete views[index].shortcutKey;
+    } else {
+      views[index].shortcutKey = newShortcut;
+      liveKeys.add(newShortcut);
+    }
+    saveViews(views);
+    renderViewsTableRows();
+  }
+}
+
 function renderViewsTableRows() {
   var tbody = document.getElementById('edit-views-tbody');
   removeChildNodes(tbody);
+
   views.forEach((view, index) => {
     var row = document.createElement('tr');
     var numberTd = document.createElement('td');
     var nameTd = document.createElement('td');
     var shortcutTd = document.createElement('td');
-    var actionsTd = document.createElement('td');
+    var actionsTd = makeActionsTd(views, index);
 
     numberTd.textContent = String(index);
-    nameTd.textContent = view.name || '';
-    shortcutTd.textContent = view.shortcutKey || '';
+
+    var nameText = document.createElement('span');
+    nameText.className = 'view-action';
+    nameText.addEventListener('click', () => {
+      setViewName(index);
+    });
+    nameText.textContent = view.name || '[+]';
+    nameTd.appendChild(nameText);
+
+    var shortcutText = document.createElement('span');
+    shortcutText.className = 'view-action';
+    shortcutText.addEventListener('click', () => {
+      setViewShortcut(index);
+    });
+    shortcutText.textContent = view.shortcutKey || '[+]';
+    shortcutTd.appendChild(shortcutText);
 
     row.appendChild(numberTd);
     row.appendChild(nameTd);
