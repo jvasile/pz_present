@@ -265,9 +265,11 @@ function renderViewsTableRows() {
   views.forEach((view, index) => {
     var row = document.createElement('tr');
     var numberTd = document.createElement('td');
-    var nameTd = document.createElement('td');
-    var shortcutTd = document.createElement('td');
+    numberTd.classList.add('edit-views-td');
+    var nameTd = numberTd.cloneNode();
+    var shortcutTd = numberTd.cloneNode();
     var actionsTd = makeActionsTd(views, index);
+    actionsTd.classList.add('edit-views-td');
 
     numberTd.textContent = String(index);
 
@@ -291,6 +293,7 @@ function renderViewsTableRows() {
     row.appendChild(nameTd);
     row.appendChild(shortcutTd);
     row.appendChild(actionsTd);
+    row.classList.add('edit-views-table-row');
     tbody.appendChild(row);
   });
 }

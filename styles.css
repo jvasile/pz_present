@@ -1,4 +1,42 @@
+body {
+  font-family: sans;
+  text-align: center;
+}
+
+h1 {
+  font-size: 24px;
+}
+
 .hidden {
   display: none;
+}
+
+.edit-views-table {
+  border-collapse: collapse;
+  margin: 15px auto;
+}
+
+.edit-views-table-row {
+  border: 1px solid #bbb;
+}
+
+.edit-views-td,
+.edit-views-th {
+  padding: 5px 15px;
+  text-align: center;
+  font-weight: normal;
+}
+
+.view-action {
+  color: blue;
+  text-decoration: underline;
+  padding: 15px;
+  cursor: pointer;
+}
+
+.disabled {
+  color: grey;
+  text-decoration: none;
+  cursor: default;
 }
 
