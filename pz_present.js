@@ -196,18 +196,6 @@ function moveView(index, step) {
 function makeActionsTd(views, index) {
   var actionsTd = document.createElement('td');
 
-  var deleteAction = document.createElement('span');
-  deleteAction.textContent = 'Delete';
-  if (index > 0) {
-    deleteAction.className = 'view-action';
-    deleteAction.addEventListener('click', () => {
-      deleteView(index);
-    });
-  } else {
-    deleteAction.className = 'view-action disabled';
-  }
-  actionsTd.appendChild(deleteAction);
-
   var moveUpAction = document.createElement('span');
   moveUpAction.textContent = 'Move Up';
   if (index > 1) {
@@ -231,6 +219,18 @@ function makeActionsTd(views, index) {
     moveDownAction.className = 'view-action disabled';
   }
   actionsTd.appendChild(moveDownAction);
+
+  var deleteAction = document.createElement('span');
+  deleteAction.textContent = 'Delete';
+  if (index > 0) {
+    deleteAction.className = 'view-action';
+    deleteAction.addEventListener('click', () => {
+      deleteView(index);
+    });
+  } else {
+    deleteAction.className = 'view-action disabled';
+  }
+  actionsTd.appendChild(deleteAction);
 
   return actionsTd;
 }
