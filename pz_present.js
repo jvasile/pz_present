@@ -236,7 +236,10 @@ function makeActionsTd(views, index) {
 }
 
 function setViewName(index) {
-  var newName = prompt('Enter a new view name.', views[index].name || '');
+  var newName = prompt(
+    'Enter a new name for this preset view.',
+    views[index].name || ''
+  );
   if (newName !== null) {
     if (newName === '') {
       delete views[index].name;
@@ -250,7 +253,7 @@ function setViewName(index) {
 
 function setViewShortcut(index) {
   var newShortcut = prompt(
-    'Enter a new view shortcut key.',
+    'Enter a new shortcut key.',
     views[index].shortcutKey || ''
   );
   if (newShortcut !== null) {
@@ -309,12 +312,12 @@ function renderViewsTableRows() {
 function addNewView(views) {
   var view = getZoomAndPan();
   var name = prompt(
-    'Adding a new preset view, optionally enter a name for this view, or leave it blank (unnamed).',
+    'Optionally enter a name for this preset view, for editing purposes, or leave blank.',
     ''
   );
   if (name === null) return;
   var shortcut = prompt(
-    'Adding a new preset view, optionally enter a keyboard shortcut.',
+    "Optionally enter a shortcut key (like 'm') for this preset view, or leave blank.",
     ''
   );
   if (shortcut === null) return;
